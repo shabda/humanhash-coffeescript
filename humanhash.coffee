@@ -38,40 +38,53 @@ DEFAULT_WORDLIST = [
     'wisconsin', 'wolfram', 'wyoming', 'xray', 'yankee', 'yellow', 'zebra',
     'zulu']
 
+class HumanHasher
+    constructor: (wordlist=DEFAULT_WORDLIST) ->
+        if wordlist.length != 256
+            throw "Wordlist must have exactly 256 items"
+        @wordlist = wordlist
 
-bytes = (digest) ->
-    zips = []
-    for el, i in digest
-        if i != (digest.length - 1) and i%2==0
-            zips.push([digest[i], digest[i+1]])
-    (parseInt(el.join(''), 16) for el in zips)
+    bytes = (digest) ->
+        zips = []
+        for el, i in digest
+            if i != (digest.length - 1) and i%2==0
+                zips.push([digest[i], digest[i+1]])
+        (parseInt(el.join(''), 16) for el in zips)
 
 
-xor = (iterable) ->
-    start = 0
-    for el in iterable
-        start ^= el
-    return start
+    xor = (iterable) ->
+        start = 0
+        for el in iterable
+            start ^= el
+        return start
 
-compress = (bytes, target) ->
-    seg_size = parseInt(bytes.length / target)
-    console.log seg_size
-    segments = (bytes[i*seg_size...(i+1)*seg_size] for i in [0...target])
-    console.log segments
-    last = segments[target-1]
-    console.log last
-    last.push.apply(last, bytes[target*seg_size..])
-    console.log last
-    segments = (xor(el) for el in segments)
-    console.log segments
-    return segments
+    compress = (bytes, target) ->
+        seg_size = parseInt(bytes.length / target)
+        segments = (bytes[i*seg_size...(i+1)*seg_size] for i in [0...target])
+        last = segments[target-1]
+        last.push.apply(last, bytes[target*seg_size..])
+        segments = (xor(el) for el in segments)
+        return segments
     
+
+    S4 = -> 
+        return (((1+Math.random())*0x10000)|0).toString(16).substring(1)
+
+    uid = ->
+        return (S4()+S4()+""+S4()+""+S4()+""+S4()+""+S4()+S4()+S4())
+       
+        
+    
+    humanize: (hexdigest, words=4, separator='-') ->
+        in_bytes = bytes(hexdigest)
+        compressed = compress(in_bytes, words)
+        return (@wordlist[el] for el in compressed).join("-")
+        
+    uuid: ->
+        digest = uid()
+        @humanize digest
     
 
 
-humanize = (hexdigest, words=4, separator='-') ->
-    in_bytes = bytes(hexdigest)
-    compressed = compress(in_bytes, words)
-    return (DEFAULT_WORDLIST[el] for el in compressed).join("-")
 
-console.log humanize(digest)
+DEFAULT_HASHER = new HumanHasher()
