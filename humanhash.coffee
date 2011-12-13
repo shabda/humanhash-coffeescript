@@ -82,9 +82,13 @@ class HumanHasher
         
     uuid: ->
         digest = uid()
-        @humanize digest
+        [(@humanize digest), digest]
     
 
 
 
 DEFAULT_HASHER = new HumanHasher()
+digest = '7528880a986c40e78c38115e640da2a1'
+console.log DEFAULT_HASHER.humanize(digest)
+console.log DEFAULT_HASHER.humanize(digest, words=6)
+console.log DEFAULT_HASHER.uuid()
