@@ -24,4 +24,4 @@ humanhash provides human-readable representations of digests.
 
 To see how this works.
 
-(https://github.com/zacharyvoase/humanhash)[https://github.com/zacharyvoase/humanhash]
+https://github.com/zacharyvoase/humanhash](https://github.com/zacharyvoase/humanhash)
